@@ -1,0 +1,15 @@
+[project]
+name = "mortgage-renewal-calc"
+version = "0.1.0"
+description = "Scenario Planning for Mortgage Renewal"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "altair>=5.5.0",
+    "marimo~=0.15.5",
+    "matplotlib>=3.10.6",
+    "numpy>=2.3.3",
+    "pandas>=2.3.2",
+    "pyarrow>=21.0.0",
+    "pytest>=9.0.2",
+]

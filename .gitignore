@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Personal Data - DO NOT COMMIT
+my_mortgage.py
+my_mortgage_config.py
+personal_*.py
+*_personal.py
+my_*.csv
+personal_*.csv
+*_personal.csv
+
+# Output files with potentially personal data
+mortgage_renewal_scenarios_*.csv
+*.xlsx
+*.xls
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
+
+# UV lock file (optional, some prefer to commit this)
+# uv.lock
