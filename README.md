@@ -2,6 +2,10 @@
 
 A Python-based calculator for Canadian mortgages with semi-annual compounding and a comprehensive renewal scenario planner.
 
+Available for use on molab.marimo.io using [this link](https://molab.marimo.io/notebooks/nb_QLjetPdpsxfKWaKYMtQyMp/app)
+
+![img](./mortgage_renewal_app_img.png)
+
 ## Features
 
 - **Canadian Mortgage Calculations**: Properly handles semi-annual compounding as used by Canadian banks
