@@ -206,7 +206,7 @@ class TestCompleteRenewalWorkflow:
         ]
         
         planner.scenario_analysis(scenarios, max_paydown=available_cash)
-        results = planner.to_frame()
+        _ = planner.to_frame()
         
         # Verify investment scenarios are calculated
         assert 'Max paydown' in planner.renewal_scenarios

@@ -8,7 +8,6 @@ Tests renewal scenario planning including:
 - Results dataframe structure
 """
 
-import pytest
 from datetime import datetime
 from canadian_mortgage_calculator import CanadianMortgageCalculator
 from mortgage_renewal import MortgageRenewalPlanner

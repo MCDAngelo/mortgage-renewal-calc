@@ -1,7 +1,6 @@
 import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
+from dateutil.relativedelta import relativedelta
 import logging
 
 logger = logging.getLogger(__name__)
@@ -12,7 +11,8 @@ logger.format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
 class CanadianMortgageCalculator:
     def __init__(self, original_principal, annual_rate, amortization_months, 
-                 term_months=60, start_date=None, mortgage_gap=(None, None), verbose=False):
+                 term_months=60, start_date=None, mortgage_gap=(None, None), 
+                 verbose=False, double_up_monthly_payments=False):
         """
         Initialize Canadian mortgage calculator with semi-annual compounding.
         
@@ -34,15 +34,20 @@ class CanadianMortgageCalculator:
         self.verbose = verbose
         self.mortgage_gap = mortgage_gap
         self.balance_at_renewal = 0
-        self.payoff_time_months = 0
+        self.payoff_time_months = amortization_months
+        self.double_up_monthly_payments = double_up_monthly_payments
+        self.total_term_interest = 0
+        self.total_term_principal = 0
+        self.total_term_payments = 0
 
         # Calculate monthly payment using Canadian semi-annual compounding
         self.monthly_payment = self.calculate_payment(
             amortization_months
         )
-        
+        if self.double_up_monthly_payments:
+            self.monthly_payment *= 2
         if verbose:
-            logger.info(f"Mortgage Details:")
+            logger.info("Mortgage Details:")
             logger.info(f"Original Principal: ${self.original_principal:,.2f}")
             logger.info(f"Annual Rate: {self.annual_rate:.4%}")
             logger.info(f"Amortization: {self.amortization_months} months ({self.amortization_months/12:.0f} years)")
@@ -124,8 +129,6 @@ class CanadianMortgageCalculator:
             current_date = self.start_date.replace(month=self.start_date.month + 1)
         
         for payment_num in range(1, self.amortization_months + 1):
-            if balance <= 0.01:  # Account for rounding
-                break
 
             if mortgage_gap:
                 if current_date >= gap_start_date and current_date <= gap_end_date:
@@ -169,14 +172,14 @@ class CanadianMortgageCalculator:
             })
             if payment_num == self.term_months:
                 self.balance_at_renewal = balance
+                self.total_term_interest = cumulative_interest
+                self.total_term_principal = cumulative_principal
+                self.total_term_payments = payment_num
             
             # Move to next month
-            if current_date.month == 12:
-                current_date = current_date.replace(year=current_date.year + 1, month=1)
-            else:
-                current_date = current_date.replace(month=current_date.month + 1)
-            
-            if balance <= 0.01:
+            current_date = current_date + relativedelta(months=1)
+        
+            if balance <= 0.10:
                 self.payoff_time_months = payment_num
                 break
         

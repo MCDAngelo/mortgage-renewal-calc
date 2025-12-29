@@ -8,7 +8,6 @@ Tests the core mortgage calculation functionality including:
 - Date handling
 """
 
-import pytest
 from datetime import datetime
 from canadian_mortgage_calculator import CanadianMortgageCalculator
 import pandas as pd

@@ -21,6 +21,7 @@ class MortgageRenewalPlanner:
             scenarios: List of dictionaries with keys:
                 - 'name': Scenario name
                 - 'new_rate': New annual interest rate
+                - 'rate_type': 'fixed' or 'variable' (default: 'fixed')
                 - 'new_mortgage_term': New mortgage term in years (default: 5)
                 - 'new_term_amortization': New amortization in months (default: None)
                 - 'principal_paydown': Amount to pay down at renewal (default: 0)
@@ -51,6 +52,45 @@ class MortgageRenewalPlanner:
                     )
 
             self.renewal_scenarios[scenario['name']] = sc
+    
+    def calculate_break_even_rates(self):
+        """
+        Calculate break-even rates between fixed and variable scenarios.
+        For each variable scenario, find the equivalent fixed rate where costs are equal.
+        """
+        fixed_scenarios = {name: sc for name, sc in self.renewal_scenarios.items() if sc.rate_type == 'fixed'}
+        variable_scenarios = {name: sc for name, sc in self.renewal_scenarios.items() if sc.rate_type == 'variable'}
+        
+        for var_name, var_sc in variable_scenarios.items():
+            # Find closest fixed scenario with same paydown and extra payments
+            closest_fixed = None
+            min_diff = float('inf')
+            
+            for fix_name, fix_sc in fixed_scenarios.items():
+                if (fix_sc.principal_paydown == var_sc.principal_paydown and
+                    fix_sc.extra_monthly_payment == var_sc.extra_monthly_payment and
+                    fix_sc.extra_annual_payment == var_sc.extra_annual_payment):
+                    
+                    rate_diff = abs(fix_sc.new_rate - var_sc.new_rate)
+                    if rate_diff < min_diff:
+                        min_diff = rate_diff
+                        closest_fixed = fix_sc
+            
+            if closest_fixed and var_sc.new_mortgage:
+                # Calculate break-even: at what rate does variable equal fixed interest?
+                # Simple approximation: if fixed interest > variable expected, break-even is above variable rate
+                if closest_fixed.total_term_interest > var_sc.total_term_interest:
+                    # Variable is better, break-even is somewhere above variable rate
+                    interest_diff = closest_fixed.total_term_interest - var_sc.total_term_interest
+                    # Rough estimate: each 0.25% rate change affects interest by rate_sensitivity * 60 months
+                    if var_sc.rate_sensitivity > 0:
+                        rate_increase_needed = interest_diff / (var_sc.rate_sensitivity * 60)
+                        var_sc.break_even_rate = var_sc.new_rate + (rate_increase_needed * 0.0025)
+                    else:
+                        var_sc.break_even_rate = closest_fixed.new_rate
+                else:
+                    # Fixed is better, variable would need to drop
+                    var_sc.break_even_rate = var_sc.new_rate - 0.005
 
     def to_frame(self):
         return pd.concat([sc.to_frame() for sc in self.renewal_scenarios.values()])
